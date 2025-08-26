@@ -1,0 +1,194 @@
+body {
+    background: #f8f9fa;
+}
+
+.card {
+    margin-top: 40px;
+    box-shadow: 0 2px 8px #0001;
+}
+
+.progress {
+    height: 24px;
+}
+
+.form-label {
+    margin-top: 10px;
+}
+
+.status-label {
+    font-weight: bold;
+    color: #495057;
+}
+
+.status-value {
+    margin-left: 8px;
+    color: #212529;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+#configStatus, #downloadStatus {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+/* 配置区域样式 */
+.config-section {
+    background: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.config-section:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.config-title {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1em;
+}
+
+.config-title:hover {
+    color: #007bff;
+}
+
+/* 表单元素改进 */
+.form-control:focus,
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    width: 3%;
+    transition: width 0.6s ease;
+    font-weight: bold;
+}
+
+/* 状态指示器 */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-indicator.active {
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.error {
+    background-color: #dc3545;
+}
+
+.status-indicator.idle {
+    background-color: #6c757d;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* 改进表单布局 */
+.form-text {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+/* 消息提示区域 - 添加平滑动画 */
+.message-area {
+    display: none;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 15px;
+}
+
+.message-area.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message-area.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+/* 消息出现动画 */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 消息消失动画 */
+@keyframes slideOutUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.message-area.animate-in {
+    animation: slideInDown 0.3s ease-out;
+}
+
+.message-area.animate-out {
+    animation: slideOutUp 0.3s ease-in;
+}
