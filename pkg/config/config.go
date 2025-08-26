@@ -23,7 +23,7 @@ type Config struct {
 var (
 	config     Config
 	configLock sync.RWMutex
-	configFile = "config.json"
+	configFile = "conf/config.json"
 )
 
 // LoadConfig 从 config.json 文件加载配置

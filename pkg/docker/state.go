@@ -54,11 +54,15 @@ var (
 	downloadCtx    context.Context
 	downloadCancel context.CancelFunc
 
-	statsFile = "stats.json"
+	statsFile = "conf/stats.json"
 )
 
 // InitState 从文件加载初始状态
 func InitState() {
+	if err := os.MkdirAll("conf", 0755); err != nil {
+		log.Printf("警告: 创建配置目录 'conf' 失败: %v", err)
+	}
+
 	if err := config.LoadConfig(); err != nil {
 		log.Printf("警告: 加载配置文件失败: %v。将使用默认配置。", err)
 	} else {
