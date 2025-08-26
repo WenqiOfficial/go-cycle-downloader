@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,9 +10,15 @@ import (
 	"docker-cycler/pkg/server"
 )
 
+//go:embed templates/*
+var templateFS embed.FS
+
 func main() {
 	// 初始化状态和配置
 	docker.InitState()
+
+	// 设置嵌入的文件系统
+	server.SetEmbeddedFS(templateFS)
 
 	// 启动调度器
 	server.StartScheduler()

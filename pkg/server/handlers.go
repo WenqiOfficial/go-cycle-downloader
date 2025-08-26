@@ -1,11 +1,13 @@
 package server
 
 import (
+	"embed"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"os"
 	"log"
+	"io/fs"
 
 	"docker-cycler/pkg/config"
 	"docker-cycler/pkg/docker"
@@ -13,10 +15,18 @@ import (
 	"docker-cycler/pkg/downloader"
 )
 
+var embeddedFS embed.FS
+
+// SetEmbeddedFS 设置嵌入的文件系统
+func SetEmbeddedFS(fs embed.FS) {
+	embeddedFS = fs
+}
+
 // RegisterHandlers 设置所有HTTP路由
 func RegisterHandlers() {
 	// 用于提供静态文件（CSS, JS）
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("templates/static"))))
+	staticFS, _ := fs.Sub(embeddedFS, "templates/static")
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
 	// 主页面
 	http.HandleFunc("/", indexHandler)
@@ -35,7 +45,13 @@ func RegisterHandlers() {
 // --- 页面处理器 ---
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/index.html")
+	data, err := embeddedFS.ReadFile("templates/index.html")
+	if err != nil {
+		http.Error(w, "Template not found", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write(data)
 }
 
 // --- API 处理器 ---
