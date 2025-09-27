@@ -15,12 +15,12 @@ $(document).ready(function () {
             data: fd,
             processData: false,
             contentType: false,
-            success: function(data) {
+            success: function (data) {
                 updateAll(data); // 保存配置后完整更新
                 // 显示保存成功提示
                 showMessage('配置保存成功', 'success');
             },
-            error: function() {
+            error: function () {
                 showMessage('配置保存失败', 'error');
             }
         });
@@ -36,36 +36,44 @@ let messageTimeout = null;
 
 // 显示消息提示
 function showMessage(message, type = 'info') {
-    const messageArea = $('#messageArea');
-    const messageText = $('#messageText');
-    
-    // 清除之前的超时
-    if (messageTimeout) {
-        clearTimeout(messageTimeout);
-    }
-    
-    // 如果消息已经显示，先隐藏
-    if (messageArea.hasClass('show')) {
-        hideMessage(function() {
-            // 隐藏完成后再显示新消息
-            setTimeout(() => showNewMessage(message, type), 100);
-        });
-        return;
-    }
-    
-    showNewMessage(message, type);
+    // const messageArea = $('#messageArea');
+    // const messageText = $('#messageText');
+
+    // // 清除之前的超时
+    // if (messageTimeout) {
+    //     clearTimeout(messageTimeout);
+    // }
+
+    // // 如果消息已经显示，先隐藏
+    // if (messageArea.hasClass('show')) {
+    //     hideMessage(function() {
+    //         // 隐藏完成后再显示新消息
+    //         setTimeout(() => showNewMessage(message, type), 100);
+    //     });
+    //     return;
+    // }
+
+    // showNewMessage(message, type);
+
+    // 更换NZ-MsgBox实现
+    $.NZ_MsgBox.tipsbar({
+        title: message
+        , content: ""
+        , type: type
+        , showtime: 5000
+    });
 }
 
 // 显示新消息的内部函数
 function showNewMessage(message, type) {
     const messageArea = $('#messageArea');
     const messageText = $('#messageText');
-    
+
     // 清除之前的类型和动画类
     messageArea.removeClass('alert-success alert-danger alert-warning alert-info animate-in animate-out');
-    
+
     // 添加新的类型
-    switch(type) {
+    switch (type) {
         case 'success':
             messageArea.addClass('alert-success');
             break;
@@ -79,17 +87,17 @@ function showNewMessage(message, type) {
         default:
             messageArea.addClass('alert-info');
     }
-    
+
     messageText.text(message);
-    
+
     // 显示消息并添加进入动画
     messageArea.show().addClass('show animate-in');
-    
+
     // 移除动画类
     setTimeout(() => {
         messageArea.removeClass('animate-in');
     }, 300);
-    
+
     // 4秒后自动隐藏
     messageTimeout = setTimeout(hideMessage, 4000);
 }
@@ -97,15 +105,15 @@ function showNewMessage(message, type) {
 // 隐藏消息提示
 function hideMessage(callback) {
     const messageArea = $('#messageArea');
-    
+
     if (!messageArea.hasClass('show')) {
         if (callback) callback();
         return;
     }
-    
+
     // 添加退出动画
     messageArea.addClass('animate-out');
-    
+
     // 动画完成后隐藏元素
     setTimeout(() => {
         messageArea.removeClass('show animate-out').hide();
@@ -117,12 +125,12 @@ function hideMessage(callback) {
 
 // 立即下载
 function downloadFile() {
-    $.post('/api/download', function(data) {
+    $.post('/api/download', function (data) {
         updateStatus(data); // 只更新状态，不更新配置
         showMessage('下载任务已启动', 'success');
         // 开始轮询进度
         pollProgress();
-    }).fail(function(jqXHR) {
+    }).fail(function (jqXHR) {
         showMessage('启动下载失败', 'error');
         if (jqXHR.responseJSON) {
             updateStatus(jqXHR.responseJSON);
@@ -132,42 +140,42 @@ function downloadFile() {
 
 // 清理缓存
 function cleanCache() {
-    $.post('/api/clean', function(data) {
+    $.post('/api/clean', function (data) {
         updateStatus(data);
         showMessage('缓存清理任务已启动', 'success');
-    }).fail(function() {
+    }).fail(function () {
         showMessage('清理缓存失败', 'error');
     });
 }
 
 // 停止下载
 function stopDownload() {
-    $.post('/api/stop', function(data) {
+    $.post('/api/stop', function (data) {
         updateStatus(data);
         showMessage('已发送停止信号', 'warning');
-    }).fail(function() {
+    }).fail(function () {
         showMessage('停止下载失败', 'error');
     });
 }
 
 // 切换任务状态
 function toggleTask() {
-    $.post('/api/toggle_task', function(data) {
+    $.post('/api/toggle_task', function (data) {
         updateStatus(data);
         const message = data.task_enabled ? '自动任务已启用' : '自动任务已暂停';
         showMessage(message, 'success');
-    }).fail(function() {
+    }).fail(function () {
         showMessage('切换任务状态失败', 'error');
     });
 }
 
 // 切换下载量限制
 function toggleLimit() {
-    $.post('/api/toggle_limit', function(data) {
+    $.post('/api/toggle_limit', function (data) {
         updateStatus(data);
         const message = data.config.daily_limit_enabled ? '下载量限制已启用' : '下载量限制已关闭';
         showMessage(message, 'success');
-    }).fail(function() {
+    }).fail(function () {
         showMessage('切换限制状态失败', 'error');
     });
 }
@@ -179,12 +187,12 @@ function updateTaskButton(enabled) {
     const btn = $('#toggleTaskBtn');
     if (enabled) {
         btn.text('⏸️ 暂停自动任务')
-           .removeClass('btn-outline-success btn-outline-danger')
-           .addClass('btn-outline-danger');
+            .removeClass('btn-outline-success btn-outline-danger')
+            .addClass('btn-outline-danger');
     } else {
         btn.text('▶️ 启用自动任务')
-           .removeClass('btn-outline-success btn-outline-danger')
-           .addClass('btn-outline-success');
+            .removeClass('btn-outline-success btn-outline-danger')
+            .addClass('btn-outline-success');
     }
 }
 
@@ -193,12 +201,12 @@ function updateLimitButton(enabled) {
     const btn = $('#toggleLimitBtn');
     if (enabled) {
         btn.text('❌ 关闭下载量限制')
-           .removeClass('btn-outline-warning btn-outline-secondary')
-           .addClass('btn-outline-secondary');
+            .removeClass('btn-outline-warning btn-outline-secondary')
+            .addClass('btn-outline-secondary');
     } else {
         btn.text('📊 启用下载量限制')
-           .removeClass('btn-outline-warning btn-outline-secondary')
-           .addClass('btn-outline-warning');
+            .removeClass('btn-outline-warning btn-outline-secondary')
+            .addClass('btn-outline-warning');
     }
 }
 
@@ -247,15 +255,14 @@ function updateStatus(data) {
 
     // 状态区
     $('#dirText').text(data.config.dir || '-');
-    
+
     // 任务运行状态加上颜色指示
     const taskStatus = data.task_status || '-';
     const statusElement = $('#taskStatus');
     statusElement.text(taskStatus);
     statusElement.removeClass('text-success text-danger text-warning text-primary');
 
-    switch(taskStatus)
-    {
+    switch (taskStatus) {
         case '下载中':
             statusElement.addClass('text-primary');
             break;
@@ -269,7 +276,7 @@ function updateStatus(data) {
     }
 
     const taskEnabled = $('#taskEnabled');
-    
+
     taskEnabled.text(data.task_enabled ? '已启用' : '已禁用');
     if (data.task_enabled) {
         taskEnabled.removeClass('text-danger').addClass('text-success');
@@ -296,7 +303,7 @@ function updateStatus(data) {
     $('#limitMB').text((data.config.limit_mb || 0) + ' MB');
     $('#todayMB').text((data.stats.daily_downloaded_mb || 0) + ' MB');
     $('#monthMB').text((data.stats.monthly_downloaded_mb || 0) + ' MB');
-    
+
     // 改进按钮文本和样式
     updateTaskButton(data.task_enabled);
     updateLimitButton(data.config.daily_limit_enabled);
@@ -344,11 +351,11 @@ function pollProgress() {
             $('#progressText').text(percent + '%');
             $('#speedText').text(speed + ' KB/s');
             $('#sizeText').text(sizeText);
-            
+
             // 更新进度条，添加颜色变化
             const progressBar = $('#progressBar');
             progressBar.css('width', percent + '%').text(percent + '%');
-            
+
             // 根据状态改变进度条颜色
             progressBar.removeClass('bg-success bg-danger bg-warning');
             if (status.includes('失败') || status.includes('错误')) {
@@ -376,7 +383,7 @@ function pollProgress() {
 
 // 页面加载时自动刷新配置和状态（完整加载）
 function autoLoad() {
-    $.getJSON('/api/status', function(data) {
+    $.getJSON('/api/status', function (data) {
         updateAll(data); // 更新配置和状态
         // 如果当前有下载任务在进行，立即开始轮询进度
         if (data && data.task_status === '下载中') {
@@ -390,14 +397,14 @@ function autoLoad() {
                 progressTimer = null;
             }
         }
-    }).fail(function() {
+    }).fail(function () {
         console.log('获取状态失败，将重试...');
     });
 }
 
 // 只刷新状态信息，不刷新配置区域
 function autoLoadStatus() {
-    $.getJSON('/api/status', function(data) {
+    $.getJSON('/api/status', function (data) {
         updateStatus(data); // 只更新状态
         // 如果当前有下载任务在进行，立即开始轮询进度
         if (data && data.task_status === '下载中') {
@@ -411,7 +418,7 @@ function autoLoadStatus() {
                 progressTimer = null;
             }
         }
-    }).fail(function() {
+    }).fail(function () {
         console.log('获取状态失败，将重试...');
     });
 }

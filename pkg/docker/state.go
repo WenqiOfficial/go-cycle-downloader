@@ -27,8 +27,8 @@ type Stats struct {
 	Message             string     `json:"message"`
 	DailyDownloadedMB   int        `json:"daily_downloaded_mb"`
 	MonthlyDownloadedMB int        `json:"monthly_downloaded_mb"`
-	LastStatDay         int        `json:"-"` // 在JSON中忽略
-	LastStatMonth       time.Month `json:"-"` // 在JSON中忽略
+	LastStatDate        string     `json:"last_stat_date"`   // 格式: "2006-01-02"
+	LastStatMonth       string     `json:"last_stat_month"`  // 格式: "2006-01"
 }
 
 // AppStatus 代表发送到前端的应用程序的整体状态
@@ -79,6 +79,8 @@ func InitState() {
 		ResetStats(true, true) // 如果加载失败，重置统计
 	} else {
 		log.Println("统计文件加载成功。")
+		// 检查并重置过期的统计数据
+		CheckAndResetStats()
 	}
 
 	// 初始化第一个下载上下文
@@ -176,25 +178,33 @@ func UpdateLastDownloadInfo(filename string, success bool) {
 	saveStats()
 }
 
-// checkAndResetStats 检查是否需要重置每日或每月统计
+// CheckAndResetStats 检查是否需要重置每日或每月统计
 func CheckAndResetStats() {
 	stateLock.Lock()
 	defer stateLock.Unlock()
 	now := time.Now()
-	resetDaily := now.Day() != appStats.LastStatDay
-	resetMonthly := now.Month() != appStats.LastStatMonth
-	ResetStats(resetDaily, resetMonthly)
+	currentDate := now.Format("2006-01-02")
+	currentMonth := now.Format("2006-01")
+	
+	resetDaily := appStats.LastStatDate != currentDate
+	resetMonthly := appStats.LastStatMonth != currentMonth
+	
+	if resetDaily || resetMonthly {
+		ResetStats(resetDaily, resetMonthly)
+	}
 }
 
 func ResetStats(daily, monthly bool) {
 	now := time.Now()
 	if daily {
 		appStats.DailyDownloadedMB = 0
-		appStats.LastStatDay = now.Day()
+		appStats.LastStatDate = now.Format("2006-01-02")
+		log.Printf("每日统计已重置，新日期: %s", appStats.LastStatDate)
 	}
 	if monthly {
 		appStats.MonthlyDownloadedMB = 0
-		appStats.LastStatMonth = now.Month()
+		appStats.LastStatMonth = now.Format("2006-01")
+		log.Printf("每月统计已重置，新月份: %s", appStats.LastStatMonth)
 	}
 	saveStats()
 }
@@ -212,10 +222,16 @@ func LoadStats() error {
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&appStats)
 	if err == nil {
-		// 成功加载后，设置当前日期
 		now := time.Now()
-		appStats.LastStatDay = now.Day()
-		appStats.LastStatMonth = now.Month()
+		// 如果没有保存过日期信息，初始化为当前日期
+		if appStats.LastStatDate == "" {
+			appStats.LastStatDate = now.Format("2006-01-02")
+		}
+		if appStats.LastStatMonth == "" {
+			appStats.LastStatMonth = now.Format("2006-01")
+		}
+		log.Printf("统计加载完成，最后统计日期: %s, 最后统计月份: %s", 
+			appStats.LastStatDate, appStats.LastStatMonth)
 	}
 	return err
 }
